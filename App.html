@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Personal Finance Tracker</title>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+  <h1>Personal Finance Tracker</h1>
+  
+  <div id="balance">Current Balance: $0</div>
+
+  <form id="transaction-form">
+    <label for="description">Name</label>
+    <input type="text" id="description" placeholder="Enter description" required>
+
+    <label for="amount">Amount</label>
+    <input type="number" id="amount" placeholder="Enter amount" required>
+
+    <select id="type">
+      <option value="income">Income</option>
+      <option value="expense">Expense</option>
+    </select>
+
+    <button type="submit">Add Transaction</button>
+  </form>
+
+  <ul id="transaction-list"></ul>
+
+  <script> 
+// Array to store transactions
+let transactions = [];
+
+// Get DOM elements
+const transactionForm = document.getElementById('transaction-form');
+const transactionList = document.getElementById('transaction-list');
+const balanceElement = document.getElementById('balance');
+
+// Function to add a new transaction
+function addTransaction(e) {
+  e.preventDefault();
+
+  const description = document.getElementById('description').value;
+  const amount = +document.getElementById('amount').value; // Convert to number
+  const type = document.getElementById('type').value;
+
+  // Create a new transaction object
+  const transaction = {
+    id: new Date().getTime(), // Unique ID based on timestamp
+    description,
+    amount,
+    type
+  };
+
+  // Add the transaction to the transactions array
+  transactions.push(transaction);
+
+  // Update the UI
+  displayTransactions();
+  updateBalance();
+
+  // Reset the form
+  transactionForm.reset();
+}
+
+// Function to delete a transaction
+function deleteTransaction(id) {
+  // Filter out the transaction with the specified id
+  transactions = transactions.filter(transaction => transaction.id !== id);
+
+  // Update the UI
+  displayTransactions();
+  updateBalance();
+}
+
+// Function to display transactions in the UI
+function displayTransactions() {
+  // Clear transaction list
+  transactionList.innerHTML = '';
+
+  transactions.forEach(transaction => {
+    const listItem = document.createElement('li');
+    listItem.classList.add('transaction-item', transaction.type);
+
+    const sign = transaction.type === 'income' ? '+' : '-';
+    listItem.innerHTML = `
+      <span>${transaction.description}</span>
+      <span>${sign}$${Math.abs(transaction.amount)}</span>
+      <button onclick="deleteTransaction(${transaction.id})">Delete</button>
+    `;
+
+    transactionList.appendChild(listItem);
+  });
+}
+
+// Function to update the balance
+function updateBalance() {
+  const totalIncome = transactions
+    .filter(transaction => transaction.type === 'income')
+    .reduce((sum, transaction) => sum + transaction.amount, 0);
+
+  const totalExpense = transactions
+    .filter(transaction => transaction.type === 'expense')
+    .reduce((sum, transaction) => sum + transaction.amount, 0);
+
+  const balance = totalIncome - totalExpense;
+
+  balanceElement.textContent = `Current Balance: $${balance}`;
+}
+
+// Event listener for form submission
+transactionForm.addEventListener('submit', addTransaction);
+
+  </script>
+ 
+	<style>
+	body {
+  font-family: Arial, sans-serif;
+	
+}
+
+h1 {
+  text-align: center;
+}
+
+form {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+}
+
+input, select {
+  width: 100%;
+  padding: 5px;
+  margin-top: 5px;
+}
+
+button {
+  margin-top: 10px;
+  padding: 5px 10px;
+}
+
+#balance {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.transaction-item {
+  margin-bottom: 5px;
+}
+
+.income {
+  color: green;
+}
+
+.expense {
+  color: red;
+}
+
+	</style>	
+</body>
+</html>
